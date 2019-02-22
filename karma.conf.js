@@ -56,8 +56,15 @@ module.exports = function(config) {
       // customLaunchers.SL_Safari7 = createCustomLauncher('safari', 7);
       // customLaunchers.SL_Safari8 = createCustomLauncher('safari', 8);
 
-      customLaunchers.SL_Safari9 = createCustomLauncher('safari', 9);
-    }
+      customLaunchers.SL_Safari9 = createCustomLauncher(
+        'safari', 9.0, 'OS X 10.11'
+      );
+      customLaunchers.SL_Safari10 = createCustomLauncher(
+        'safari', "10.1", 'macOS 10.12'
+      );
+      customLaunchers.SL_Safari11 = createCustomLauncher(
+        'safari', "11.1", 'macOS 10.13'
+      );}
 
     // Opera
     if (runAll || process.env.SAUCE_OPERA) {

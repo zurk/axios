@@ -1,6 +1,7 @@
 var axios = require('../../../index');
 var http = require('http');
 var net = require('net');
+var https = require('https');
 var url = require('url');
 var zlib = require('zlib');
 var assert = require('assert');
@@ -95,6 +96,37 @@ describe('supports http with nodejs', function () {
     });
   });
 
+  it('should redirect mixed protocols when both http and https agents are defined', function (done) {
+    function testRedirectRequest() {
+      axios.get('http://localhost:4444/test', {
+        httpAgent: new http.Agent({
+          keepAlive: true,
+          keepAliveMsecs: 1000,
+          maxSockets: 100,
+          maxFreeSockets: 50
+        }),
+        httpsAgent: new https.Agent({
+          keepAlive: true,
+          keepAliveMsecs: 2000,
+          maxSockets: 100,
+          maxFreeSockets: 60
+        })
+      }).then(function (res) {
+        assert.equal(res.request.path, '/');
+        done();
+      })
+      .catch(function (err) {
+        done(err);
+      });
+    }
+
+    server = http.createServer(function(req, res) {
+      res.setHeader('Location', 'https://example.com/');
+      res.statusCode = 307;
+      res.end();
+    }).listen(4444, testRedirectRequest);
+  });
+
   it('should not redirect', function (done) {
     server = http.createServer(function (req, res) {
       res.setHeader('Location', '/foo');
@@ -129,6 +161,31 @@ describe('supports http with nodejs', function () {
       });
     });
   });
+
+  it('should preserve the HTTP verb on redirect', function (done) {
+    server = http.createServer(function (req, res) {
+      if (req.method.toLowerCase() !== "head") {
+        res.statusCode = 400;
+        res.end(); return;
+      }
+
+      var parsed = url.parse(req.url);
+      if (parsed.pathname === '/one') {
+        res.setHeader('Location', '/two');
+        res.statusCode = 302;
+        res.end();
+      }
+      else {
+        res.end();
+      }
+    }).listen(4444, function () {
+      axios.head('http://localhost:4444/one').then(function (res) {
+        assert.equal(res.status, 200);
+        done();
+      }).catch(function (err) {
+        done(err);
+      });
+    }); });
 
   it('should support transparent gunzip', function (done) {
     var data = {

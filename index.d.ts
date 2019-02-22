@@ -21,14 +21,14 @@ export interface AxiosProxyConfig {
   protocol?: string;
 }
 
-export type Method = 
-  | 'get' 
-  | 'delete' 
-  | 'head' 
-  | 'options' 
-  | 'post' 
-  | 'put' 
-  | 'patch'
+export type Method =
+  | 'get' | 'GET'
+  | 'delete' | 'DELETE'
+  | 'head' | 'HEAD'
+  | 'options' | 'OPTIONS'
+  | 'post' | 'POST'
+  | 'put' | 'PUT'
+  | 'patch' | 'PATCH'
 
 export type ResponseType = 
   | 'arraybuffer' 
@@ -81,6 +81,7 @@ export interface AxiosError extends Error {
   code?: string;
   request?: any;
   response?: AxiosResponse;
+  isAxiosError: boolean;
 }
 
 export interface AxiosPromise<T = any> extends Promise<AxiosResponse<T>> {
@@ -127,6 +128,7 @@ export interface AxiosInstance {
     request: AxiosInterceptorManager<AxiosRequestConfig>;
     response: AxiosInterceptorManager<AxiosResponse>;
   };
+  getUri(config?: AxiosRequestConfig): string;
   request<T = any, R = AxiosResponse<T>> (config: AxiosRequestConfig): Promise<R>;
   get<T = any, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R>;
   delete<T = any, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R>;
